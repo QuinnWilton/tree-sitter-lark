@@ -1,0 +1,18 @@
+{
+  "grammars": [
+    {
+      "name": "lark",
+      "camelCase": false,
+      "scope": "source.lark",
+      "file-types": ["lark"],
+      "path": "."
+    }
+  ],
+  "metadata": {
+    "version": "0.1.0",
+    "license": "MIT",
+    "description": "Tree-sitter grammar for the Lark language",
+    "authors": [],
+    "links": {}
+  }
+}
