@@ -6,12 +6,30 @@ module.exports = grammar({
   extras: ($) => [/\s/, $.comment],
 
   rules: {
-    source_file: ($) => repeat($._definition),
+    source_file: ($) => repeat($._toplevel),
 
-    _definition: ($) => $.let_definition,
+    _toplevel: ($) =>
+      choice($.let_definition, $.export_declaration, $.import_declaration),
 
     let_definition: ($) =>
       seq("let", field("name", $.identifier), "=", field("value", $._expression)),
+
+    export_declaration: ($) =>
+      seq("export", field("names", $.name_list)),
+
+    import_declaration: ($) =>
+      seq(
+        "import",
+        field("module", $.module_name),
+        optional(
+          choice(
+            seq("(", field("names", $.name_list), ")"),
+            seq("as", field("alias", $.module_name))
+          )
+        )
+      ),
+
+    name_list: ($) => seq($.identifier, repeat(seq(",", $.identifier))),
 
     _expression: ($) =>
       choice(
@@ -24,6 +42,7 @@ module.exports = grammar({
         $.parenthesized_expression,
         $.integer,
         $.boolean,
+        $.qualified_identifier,
         $.identifier
       ),
 
@@ -106,9 +125,18 @@ module.exports = grammar({
 
     parenthesized_expression: ($) => seq("(", $._expression, ")"),
 
+    qualified_identifier: ($) =>
+      seq(
+        field("module", $.module_name),
+        ".",
+        field("member", $.identifier)
+      ),
+
     integer: ($) => /[0-9]+/,
 
     boolean: ($) => choice("true", "false"),
+
+    module_name: ($) => /[A-Z][a-zA-Z0-9_]*/,
 
     identifier: ($) => /[a-z_][a-zA-Z0-9_]*/,
 
